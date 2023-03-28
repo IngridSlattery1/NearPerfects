@@ -1,71 +1,63 @@
 from math import sqrt
+from sympy import divisors
 
-def sigma(n):
-  sigma=0
-  for i in range (1, int(n/2)+1):
-    if n % i == 0:
-      sigma += i
-  sigma += n
-  return sigma
-
-def isPowerOfTwo(n):
-    if (n == 0 or n == 1):
+def ispoweroftwo(n):  # Checks to see whether number is power of two
+    if n == 0 or n == 1:
         return False
-    while (n != 1):
-            if (n % 2 != 0):
+    while n != 1:
+        if n % 2 != 0:
+            return False
+        n = n // 2
+    return True
+
+
+def checkprime(n):  # Checks to see whether number is prime
+    if n == 1:
+        return False
+    elif n == 2:
+        return True
+    elif n > 2:
+        for i in range(2, int(sqrt(n)) + 1):
+            if n % i == 0:
                 return False
-            n = n // 2
-             
     return True
-def checkPrime(n):
-  prime_flag = 0
-  if (n == 1):
+
+
+def checkotherdivsior(d2new):  # Checking the other divisor (not a power of two) to see if its prime
+    while d2new % 2 == 0 and d2new > 2:
+        d2new = d2new / 2
+    if checkprime(d2new):
+        return True
     return False
-  if (n == 2):
-    return True
-  if(n > 2):
-    for i in range(2, int(sqrt(n)) + 1):
-        if (n % i == 0):
-            prime_flag = 1
-            break
-        prime_flag = 0
 
-    if (prime_flag == 0):
-      return True
-    else:
-      return False
 
-def nearperfect2finder(x):
-    for n in range (1,x+1):
-        sig = sigma(n)
-        maxcheck = sig - 2*n
-        if maxcheck>1:
-            for d in range (1, int(maxcheck/2)):
-                if (n%d==0):
-                    if ((maxcheck-d)>0 and n%(maxcheck-d)==0 and (maxcheck-d)!=d):
-                        d2 = maxcheck-d
-                        d2new = d2
-                        dnew = d
-                        if (isPowerOfTwo(d) and isPowerOfTwo(d2)):
-                          break
-                        if (isPowerOfTwo(d)):
-                          while (d2new % 2 == 0 and d2new > 2):
-                            d2new = d2new/2
-                          if checkPrime(d2new):
-                            nNew = n
-                            while (nNew % 2 == 0):
-                              nNew = nNew/2
-                            if checkPrime(nNew):
-                              print(n,sig,d,d2)
+def checkoriginalnumber(original):   # Checking original number to see whether it is  product of power of two and prime
+    while original % 2 == 0:
+        original = original / 2
+    if checkprime(original):
+        return True
+    return False
 
-                        elif (isPowerOfTwo(d2)):
-                          while (dnew % 2 == 0):
-                            dnew = dnew/2
-                            if checkPrime(dnew):
-                              nNew = n
-                              while (nNew % 2 == 0):
-                                nNew = nNew/2
-                              if checkPrime(nNew):
-                                print(n,sig,d,d2)
+def nearperfect2finder(w, x):
+    for n in range(w, x + 1):
+        if n != 1 and n % 10000 == 1:
+            print("Just completed " + str(n-1))
+        sig = sum(divisors(n))
+        maxcheck = sig - 2 * n
+        if maxcheck > 1:
+            for d in divisors(n):
+                    if d < int(maxcheck / 2) and maxcheck - d > 0 and n % (maxcheck - d) == 0 and (maxcheck - d) != d:
+                        d2 = maxcheck - d
+                        if ispoweroftwo(d) and ispoweroftwo(d2):   # Breaks code if both divisors are powers of 2
+                            break
+                        if ispoweroftwo(d):
+                            if checkotherdivsior(d2):
+                                if checkoriginalnumber(n):  # Checking all three requirements
+                                    print(n, sig, d, d2)
+                        elif ispoweroftwo(d2):
+                            if checkotherdivsior(d):
+                                if checkoriginalnumber(n):  # Checking all three requirements
+                                    print(n, sig, d, d2)
     print("all done")
-nearperfect2finder(10000)
+
+nearperfect2finder(0, 1000000)
